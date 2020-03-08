@@ -43,6 +43,7 @@ namespace Graph_lib
 		void detach(Shape& s); // remove s from shapes 
 		void detach(Widget& w); // remove w from window (deactivate callbacks)
 
+		/* 将一个形状放在最顶层 */
 		void put_on_top(Shape& p); // put p on top of other shapes
 
 	protected:

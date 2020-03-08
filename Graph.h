@@ -15,6 +15,7 @@ namespace Graph_lib
 #undef major
 #undef minor
 
+	/* 颜色类型 */
 	struct Color
 	{
 		enum Color_type
@@ -35,6 +36,7 @@ namespace Graph_lib
 			dark_cyan = FL_DARK_CYAN
 		};
 
+		/* 颜色的透明性 */
 		enum Transparency { invisible = 0, visible = 255 };
 
 		Color(Color_type cc) : v(visible), c(Fl_Color(cc))
@@ -49,6 +51,7 @@ namespace Graph_lib
 		{
 		}
 
+		/* 默认颜色 */
 		Color(Transparency vv) : v(vv), c(Fl_Color())
 		{
 		}
@@ -57,24 +60,26 @@ namespace Graph_lib
 		char visibility() const { return v; }
 		void set_visibility(Transparency vv) { v = vv; }
 	private:
+		/* 当前不可见或者可见 */
 		unsigned char v; // 0 or 1 for now
 		Fl_Color c;
 	};
 
+	/* 描述线的外形的一种模式 */
 	struct Line_style
 	{
 		enum Line_style_type
 		{
-			solid = FL_SOLID,
 			// -------
-			dash = FL_DASH,
+			solid = FL_SOLID,
 			// - - - -
-			dot = FL_DOT,
+			dash = FL_DASH,
 			// ....... 
-			dashdot = FL_DASHDOT,
+			dot = FL_DOT,
 			// - . - . 
-			dashdotdot = FL_DASHDOTDOT,
+			dashdot = FL_DASHDOT,
 			// -..-..
+			dashdotdot = FL_DASHDOTDOT,
 		};
 
 		Line_style(Line_style_type ss) : s(ss), w(0)
@@ -92,10 +97,13 @@ namespace Graph_lib
 		int width() const { return w; }
 		int style() const { return s; }
 	private:
+		/* 模式(如虚线或实线) */
 		int s;
+		/* 宽度(线的粗细) */
 		int w;
 	};
 
+	/* 字符的字体 */
 	class Font
 	{
 	public:
@@ -152,8 +160,10 @@ namespace Graph_lib
 
 		~Vector_ref() { for (int i = 0; i < owned.size(); ++i) delete owned[i]; }
 
+		/* 加入一个已命名对象 */
 		void push_back(T& s) { v.push_back(&s); }
 
+		/* 加入一个未命名对象 */
 		void push_back(T* p)
 		{
 			v.push_back(p);
@@ -162,6 +172,7 @@ namespace Graph_lib
 
 		// ???void erase(???)
 
+		/* 加下标:便于读写访问 */
 		T& operator[](int i) { return *v[i]; }
 		const T& operator[](int i) const { return *v[i]; }
 		int size() const { return v.size(); }
@@ -252,8 +263,10 @@ namespace Graph_lib
 		Color fcolor;
 	};
 
+	/* 一个Line是由两个Point定义的一种Shape */
 	struct Line : Shape
 	{
+		/* 由两个Point创建一个Line */
 		Line(Point p1, Point p2)
 		{
 			add(p1);
@@ -263,12 +276,14 @@ namespace Graph_lib
 
 	struct Rectangle : Shape
 	{
+		/* 一个顶点(左上角)和宽度、高度 */
 		Rectangle(Point xy, int ww, int hh) : h{hh}, w{ww}
 		{
 			if (h <= 0 || w <= 0) error("Bad rectangle: non-positive side");
 			add(xy);
 		}
 
+		/* 两个顶点(左上角和右下角) */
 		Rectangle(Point x, Point y) : h{y.y - x.y}, w{y.x - x.x}
 		{
 			if (h <= 0 || w <= 0) error("Bad rectangle: first point is not top left");
@@ -283,54 +298,73 @@ namespace Graph_lib
 		int height() const { return h; }
 		int width() const { return w; }
 	private:
+		/* 高度 */
 		int h; // height
+		/* 宽度 */
 		int w; // width
 		//	Color fcolor;	// fill color; 0 means "no fill"
 	};
 
 	bool intersect(Point p1, Point p2, Point p3, Point p4);
 
-
+	/* 线的开放序列 */
 	struct Open_polyline : Shape
 	{
 		// open sequence of lines
+		/* 使用Shape的构造函数 */
 		using Shape::Shape;
 		void add(Point p) { Shape::add(p); }
 		void draw_lines() const override;
 	};
 
+	/* 线的闭合序列 */
 	struct Closed_polyline : Open_polyline
 	{
 		// closed sequence of lines
+		/* 使用Open_polyline的构造函数 */
 		using Open_polyline::Open_polyline;
 		void draw_lines() const override;
 
 		//	void add(Point p) { Shape::add(p); }
 	};
 
-
+	/* 非交叉线的闭合序列 */
 	struct Polygon : Closed_polyline
 	{
 		// closed sequence of non-intersecting lines
+		/* 使用Closed_polyline的构造函数 */
 		using Closed_polyline::Closed_polyline;
 		void add(Point p);
 		void draw_lines() const override;
 	};
 
+	/* 相关的多条线 */
 	struct Lines : Shape
 	{
 		// indepentdent lines
+		/* 空对象 */
 		Lines()
 		{
 		}
 
+		/* 通过一个点的列表对象进行初始化 */
 		Lines(std::initializer_list<Point> lst) : Shape{lst}
 		{
 			if (lst.size() % 2) error("odd number of points for Lines");
 		}
 
+		Lines(std::initializer_list<pair<Point, Point>> lst)
+		{
+			for (const auto p : lst)
+			{
+				add(p.first, p.second);
+			}
+		}
+
+		/* 绘制 */
 		void draw_lines() const override;
 
+		/* 加入一条由两个点定义的线 */
 		void add(Point p1, Point p2)
 		{
 			Shape::add(p1);
@@ -341,6 +375,7 @@ namespace Graph_lib
 	struct Text : Shape
 	{
 		// the point is the bottom left of the first letter
+		/* 该点在第一个字符的左下角处 */
 		Text(Point x, const string& s) : lab{s} { add(x); }
 
 		void draw_lines() const override;
@@ -354,6 +389,7 @@ namespace Graph_lib
 		void set_font_size(int s) { fnt_sz = s; }
 		int font_size() const { return fnt_sz; }
 	private:
+		/* 标签 */
 		string lab; // label
 		Font fnt{fl_font()};
 		int fnt_sz{(14 < fl_size()) ? fl_size() : 14}; // at least 14 point
@@ -380,9 +416,11 @@ namespace Graph_lib
 
 	struct Circle : Shape
 	{
+		/* 圆心和半径 */
 		Circle(Point p, int rr) // center and radius
 			: r{rr}
 		{
+			/* 保存圆的正方形边界的左上角的点 */
 			add(Point{p.x - r, p.y - r});
 		}
 
@@ -390,7 +428,13 @@ namespace Graph_lib
 
 		Point center() const { return {point(0).x + r, point(0).y + r}; }
 
-		void set_radius(int rr) { r = rr; }
+		void set_radius(int rr)
+		{
+			/* 保持圆心 */
+			set_point(0, Point{center().x - rr, center().y - rr});
+			r = rr;
+		}
+
 		int radius() const { return r; }
 	private:
 		int r;
@@ -399,6 +443,7 @@ namespace Graph_lib
 
 	struct Ellipse : Shape
 	{
+		/* 圆心,到圆心的最大和最小距离 */
 		Ellipse(Point p, int ww, int hh) // center, min, and max distance from center
 			: w{ww}, h{hh}
 		{
@@ -411,9 +456,33 @@ namespace Graph_lib
 		Point focus1() const { return {center().x + int(sqrt(w * w - h * h)), center().y}; }
 		Point focus2() const { return {center().x - int(sqrt(w * w - h * h)), center().y}; }
 
-		void set_major(int ww) { w = ww; }
+		void set_major(int ww)
+		{
+			/* 保持圆心 */
+			set_point(0, Point{center().x - ww, center().y - h});
+			w = ww;
+		}
+
 		int major() const { return w; }
-		void set_minor(int hh) { h = hh; }
+
+		void set_minor(int hh)
+		{
+			/* 保持圆心 */
+			set_point(0, Point{center().x - w, center().y - hh});
+			h = hh;
+		}
+
+		/* 焦点 */
+		Point focus() const
+		{
+			if (h <= w) /* 焦点在x轴上 */
+			{
+				return {center().x + int(sqrt(double(w * w - h * h))), center().y};
+			}
+			/* 焦点在y轴上 */
+			return {center().x, center().y + int(sqrt(double(h * h - w * w)))};
+		}
+
 		int minor() const { return h; }
 	private:
 		int w;
@@ -428,10 +497,27 @@ namespace Graph_lib
 	};
 	*/
 
+	/* "标记"开放多段线的每个点 */
 	struct Marked_polyline : Open_polyline
 	{
-		Marked_polyline(const string& m) : mark(m)
+		Marked_polyline(const string& m)
+			: mark{m}
 		{
+			/* 为了避免draw_lines()函数访问可能不存在的符号,这里需要一个对空字符串的检测 */
+			if (m.empty())
+			{
+				mark = "*";
+			}
+		}
+
+		Marked_polyline(const string& m, std::initializer_list<Point> lst)
+			: Open_polyline{lst},
+			  mark{m}
+		{
+			if (m.empty())
+			{
+				mark = "*";
+			}
 		}
 
 		void draw_lines() const override;
@@ -439,14 +525,23 @@ namespace Graph_lib
 		string mark;
 	};
 
+	/* 不与线关联的标记 */
 	struct Marks : Marked_polyline
 	{
 		Marks(const string& m) : Marked_polyline(m)
 		{
+			/* 将Marked_polyline的线设置为不可见(invisible) */
+			set_color(Color(Color::invisible));
+		}
+
+		Marks(const string& m, std::initializer_list<Point> lst): Marked_polyline{m, lst}
+		{
+			/* 将Marked_polyline的线设置为不可见(invisible) */
 			set_color(Color(Color::invisible));
 		}
 	};
 
+	/* 标记一个孤立的Point */
 	struct Mark : Marks
 	{
 		Mark(Point xy, char c) : Marks(string(1, c)) { add(xy); }
@@ -472,19 +567,24 @@ namespace Graph_lib
 		void draw(int x, int y, int, int, int, int) override { draw_empty(x, y); }
 	};
 
-	struct Suffix
+	/* 图像编码 */
+	enum class Suffix
 	{
-		enum Encoding { none, jpg, gif, bmp };
+		none,
+		jpg,
+		gif,
+		bmp
 	};
 
-	Suffix::Encoding get_encoding(const string& s);
+	Suffix get_encoding(const string& s);
 
 	struct Image : Shape
 	{
-		Image(Point xy, string s, Suffix::Encoding e = Suffix::none);
+		Image(Point xy, string s, Suffix e = Suffix::none);
 		~Image() { delete p; }
 		void draw_lines() const override;
 
+		/* 选择要显示图像的某个子图像 */
 		void set_mask(Point xy, int ww, int hh)
 		{
 			w = ww;
@@ -500,6 +600,7 @@ namespace Graph_lib
 		}
 
 	private:
+		/* 为关联到(cx,cy)处的图像定义"masking box" */
 		int w, h, cx, cy; // define "masking box" within image relative to position (cx,cy)
 		Fl_Image* p;
 		Text fn;

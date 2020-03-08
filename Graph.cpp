@@ -64,6 +64,8 @@ namespace Graph_lib
 
 	void Polygon::add(Point p)
 	{
+		/* 检查新的线没有和现有的线交叉 */
+
 		int np = number_of_points();
 
 		if (1 < np)
@@ -116,8 +118,10 @@ namespace Graph_lib
 
 	void Closed_polyline::draw_lines() const
 	{
+		/* 先画"开放的多线条部分" */
 		Open_polyline::draw_lines();
 
+		/* 然后画闭合线 */
 		if (color().visibility()) // draw closing line:
 			fl_line(point(number_of_points() - 1).x, point(number_of_points() - 1).y, point(0).x, point(0).y);
 	}
@@ -165,6 +169,7 @@ namespace Graph_lib
 
 	void Rectangle::draw_lines() const
 	{
+		/* 填充 */
 		if (fill_color().visibility())
 		{
 			// fill
@@ -173,6 +178,7 @@ namespace Graph_lib
 			fl_color(color().as_int()); // reset color
 		}
 
+		/* 填充区域上层的线 */
 		if (color().visibility())
 		{
 			// edge on top of fill
@@ -264,7 +270,11 @@ namespace Graph_lib
 		if (color().visibility())
 		{
 			fl_color(color().as_int());
-			fl_arc(point(0).x, point(0).y, r + r, r + r, 0, 360);
+			fl_arc(
+				point(0).x, point(0).y, /* 左上角 */
+				r + r, r + r, /* 外接矩形的宽度和高度 */
+				0, 360 /* 绘制的起止角度 */
+			);
 		}
 	}
 
@@ -288,14 +298,17 @@ namespace Graph_lib
 
 	void draw_mark(Point xy, char c)
 	{
+		/* 用来使字符居中显示 */
 		static const int dx = 4;
 		static const int dy = 4;
+		/* 含有单个字符c的字符串 */
 		string m(1, c);
 		fl_draw(m.c_str(), xy.x - dx, xy.y + dy);
 	}
 
 	void Marked_polyline::draw_lines() const
 	{
+		/* 划线 */
 		Open_polyline::draw_lines();
 		for (int i = 0; i < number_of_points(); ++i)
 			draw_mark(point(i), mark[i % mark.size()]);
@@ -310,7 +323,7 @@ namespace Graph_lib
 	*/
 
 
-	std::map<string, Suffix::Encoding> suffix_map;
+	std::map<string, Suffix> suffix_map;
 
 	int init_suffix_map()
 	{
@@ -325,7 +338,7 @@ namespace Graph_lib
 		return 0;
 	}
 
-	Suffix::Encoding get_encoding(const string& s)
+	Suffix get_encoding(const string& s)
 	// try to deduce type from file name using a lookup table
 	{
 		static int x = init_suffix_map();
@@ -337,6 +350,7 @@ namespace Graph_lib
 		return suffix_map[suf];
 	}
 
+	/* 检测名为s的文件是否存在以及是否可打开进行读操作 */
 	bool can_open(const string& s)
 	// check if a file named s exists and can be opened for reading
 	{
@@ -347,20 +361,23 @@ namespace Graph_lib
 
 	// somewhat overelaborate constructor
 	// because errors related to image files can be such a pain to debug
-	Image::Image(Point xy, string s, Suffix::Encoding e)
+	Image::Image(Point xy, string s, Suffix e)
 		: w(0), h(0), fn(xy, "")
 	{
 		add(xy);
 
+		/* 我们能打开s吗? */
 		if (!can_open(s))
 		{
 			fn.set_label("cannot open \"" + s + '\"');
+			/* 显示error Image */
 			p = new Bad_image(30, 20); // the "error image"
 			return;
 		}
 
 		if (e == Suffix::none) e = get_encoding(s);
 
+		/* 检查是否为已知编码格式 */
 		switch (e)
 		{
 		case Suffix::jpg:
@@ -372,8 +389,9 @@ namespace Graph_lib
 			//	case Suffix::bmp:
 			//		p = new Fl_BMP_Image(s.c_str());
 			//		break;
-		default: // Unsupported image encoding
+		default: // Unsupported image encoding /* 未知的编码格式 */
 			fn.set_label("unsupported file type \"" + s + '\"');
+			/* 显示error Image */
 			p = new Bad_image(30, 20); // the "error image"
 		}
 	}

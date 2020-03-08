@@ -7,6 +7,7 @@
 
 namespace Graph_lib
 {
+	/* 用一对整数(坐标值)表示 */
 	struct Point
 	{
 		int x, y;

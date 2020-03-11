@@ -180,6 +180,7 @@ namespace Graph_lib
 
 	typedef double Fct(double);
 
+	/* 处理颜色和线型,包含一组线条 */
 	class Shape
 	{
 		// deals with color and style, and holds sequence of lines
@@ -188,19 +189,25 @@ namespace Graph_lib
 		{
 		}
 
+		/* add()操作将Point加入到Shape中 */
 		Shape(std::initializer_list<Point> lst); // add() the Points to this Shape
 
 		//	Shape() : lcolor(fl_color()),
 		//		ls(0),
 		//		fcolor(Color::invisible) { }
 
+		/* 将p加入到点集中 */
 		void add(Point p) { points.push_back(p); }
+		/* point[i]=p */
 		void set_point(int i, Point p) { points[i] = p; }
 	public:
+		/* 处理颜色,画线 */
 		void draw() const; // deal with color and draw_lines
 	protected:
+		/* 绘制合适的线条 */
 		virtual void draw_lines() const; // simply draw the appropriate lines
 	public:
+		/* 将形状移动到+dx和+dy的位置 */
 		virtual void move(int dx, int dy); // move the shape +=dx and +=dy
 
 		void set_color(Color col) { lcolor = col; }
@@ -212,9 +219,11 @@ namespace Graph_lib
 		void set_fill_color(Color col) { fcolor = col; }
 		Color fill_color() const { return fcolor; }
 
+		/* 只读方式访问所有的点 */
 		Point point(int i) const { return points[i]; }
 		int number_of_points() const { return int(points.size()); }
 
+		/* 虚析构函数 */
 		virtual ~Shape()
 		{
 		}
@@ -227,12 +236,16 @@ namespace Graph_lib
 			if (a.attached)error("attempt to copy attached shape");
 		}
 		*/
+		/* 防止拷贝 */
 		Shape(const Shape&) = delete;
 		Shape& operator=(const Shape&) = delete;
 	private:
+		/* 不是所有的形状都使用 */
 		vector<Point> points; // not used by all shapes
+		/* 线条使用的颜色和字符(默认) */
 		Color lcolor{fl_color()};
 		Line_style ls{0};
+		/* 填充颜色 */
 		Color fcolor{Color::invisible};
 
 		//	Shape(const Shape&);

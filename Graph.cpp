@@ -16,10 +16,15 @@ namespace Graph_lib
 	{
 		Fl_Color oldc = fl_color();
 		// there is no good portable way of retrieving the current style
+		/* 没有好的可移植方式来获取当前的线型 */
+		/* 设置颜色 */
 		fl_color(lcolor.as_int());
+		/* 设置线型 */
 		fl_line_style(ls.style(), ls.width());
 		draw_lines();
+		/* 重置颜色(改为绘制之前颜色) */
 		fl_color(oldc); // reset color (to pevious) and style (to default)
+		/* 重置线型为默认值 */
 		fl_line_style(0);
 	}
 

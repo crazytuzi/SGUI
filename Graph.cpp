@@ -157,6 +157,10 @@ namespace Graph_lib
 		fl_font(ofnt, osz);
 	}
 
+	/*
+	 * 将(0,0)置于xy,绘制由count条线段组成的f(x)函数图,x取值为[r1,r2)
+	 * x坐标和y坐标分别由xscale和yscale进行比例设定
+	 */
 	Function::Function(Fct f, double r1, double r2, Point xy, int count, double xscale, double yscale)
 	// graph f(x) for x in [r1:r2) using count line segments with (0,0) displayed at xy
 	// x coordinates are scaled by xscale and y coordinates scaled by yscale
@@ -201,8 +205,10 @@ namespace Graph_lib
 		{
 		case x:
 			{
+				/* 坐标线 */
 				add(xy); // axis line
 				add(Point(xy.x + length, xy.y)); // axis line
+				/* 添加刻度 */
 				if (1 < n)
 				{
 					int dist = length / n;
@@ -214,15 +220,18 @@ namespace Graph_lib
 					}
 				}
 				// label under the line
+				/* 在线的下方放置标签 */
 				label.move(length / 3, xy.y + 20);
 				break;
 			}
 		case y:
 			{
+				/* 生成一个y轴 */
 				add(xy); // a y-axis goes up
 				add(Point(xy.x, xy.y - length));
 				if (1 < n)
 				{
+					/* 添加刻度 */
 					int dist = length / n;
 					int y = xy.y - dist;
 					for (int i = 0; i < n; ++i)
@@ -232,6 +241,7 @@ namespace Graph_lib
 					}
 				}
 				// label at top
+				/* 在顶部放置标签 */
 				label.move(xy.x - 10, xy.y - length - 10);
 				break;
 			}
@@ -243,7 +253,9 @@ namespace Graph_lib
 	void Axis::draw_lines() const
 	{
 		Shape::draw_lines(); // the line
+		/* 刻度可能和线具有不同的颜色 */
 		notches.draw(); // the notches may have a different color from the line
+		/* 标签可能和线具有不同的颜色 */
 		label.draw(); // the label may have a different color from the line
 	}
 

@@ -29,6 +29,10 @@ namespace Graph_lib
 
 	//------------------------------------------------------------------------------
 
+	/*
+	 * Widget是一个Fl_widget的句柄,不是Fl_widget
+	 * 我们尽量使接口类独立于FLTK
+	 */
 	class Widget
 	{
 		// Widget is a handle to an Fl_widget - it is *not* an Fl_widget
@@ -61,7 +65,9 @@ namespace Graph_lib
 		}
 
 	protected:
+		/* 每个Widget都属于一个Window */
 		SWindow* own; // every Widget belongs to a SWindow
+		/* 连接到FLTK Widget */
 		Fl_Widget* pw; // connection to the FLTK Widget
 	private:
 		Widget& operator=(const Widget&); // don't copy Widgets
@@ -124,16 +130,18 @@ namespace Graph_lib
 		Vector_ref<Button> selection;
 		Kind k;
 		int offset;
+		/* 将Button添加到Menu */
 		int attach(Button& b); // Menu does not delete &b
+		/* 添加新的Button到Menu */
 		int attach(Button* p); // Menu deletes p
-
+		/* 显示所有的Button */
 		void show() override
 		// show all buttons
 		{
 			for (unsigned int i = 0; i < selection.size(); ++i)
 				selection[i].show();
 		}
-
+		/* 隐藏所有的Button */
 		void hide() override
 		// hide all buttons
 		{
@@ -141,6 +149,7 @@ namespace Graph_lib
 				selection[i].hide();
 		}
 
+		/* 移动所有的Button */
 		void move(int dx, int dy) override
 		// move all buttons
 		{
@@ -148,6 +157,7 @@ namespace Graph_lib
 				selection[i].move(dx, dy);
 		}
 
+		/* 将所有的Button添加到窗口win中 */
 		void attach(SWindow& win) override
 		// attach all buttons
 		{

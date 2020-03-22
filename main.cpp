@@ -12,7 +12,7 @@ public:
 	{
 		p1 = new Button{Point{100, 100}, 50, 20, "show", cb_sh};
 
-		p1 = new Button{Point{200, 100}, 50, 20, "hide", cb_sh};
+		p2 = new Button{Point{200, 100}, 50, 20, "hide", cb_sh};
 
 		mvp = new Button{Point{100, 200}, 50, 20, "move", cb_mv};
 

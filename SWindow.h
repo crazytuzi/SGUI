@@ -20,7 +20,9 @@ namespace Graph_lib
 	class SWindow : public Fl_Window
 	{
 	public:
+		/* 令系统选择位置 */
 		SWindow(int w, int h, const string& title); // let the system pick the location
+		// 左上角在xy处
 		SWindow(Point xy, int w, int h, const string& title); // top left corner in xy
 		virtual ~SWindow()
 		{
@@ -40,7 +42,9 @@ namespace Graph_lib
 		void attach(Shape& s);
 		void attach(Widget& w);
 
+		/* 从形状中删除w */
 		void detach(Shape& s); // remove s from shapes 
+		/* 从窗口中删除w(吊销回调函数) */
 		void detach(Widget& w); // remove w from window (deactivate callbacks)
 
 		/* 将一个形状放在最顶层 */
@@ -50,7 +54,9 @@ namespace Graph_lib
 		void draw() override;
 
 	private:
+		/* 附属于窗口的形状 */
 		vector<Shape*> shapes; // shapes attached to window
+		/* 窗口大小 */
 		int w, h; // window size
 
 		void init();

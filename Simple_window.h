@@ -40,6 +40,7 @@ private:
 	bool button_pushed;
 
 	/* next_button的回调 */
+	/* 对位于addr的窗口调用Simple_window::next() */
 	static void cb_next(Address, Address addr) // callback for next_button
 	//	{ reference_to<Simple_window>(addr).next(); }
 	{

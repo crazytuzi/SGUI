@@ -15,11 +15,13 @@ namespace Graph_lib
 {
 	//------------------------------------------------------------------------------
 
+	/* Address是void*的别名 */
 	typedef void* Address; // Address is a synonym for void*
 	typedef void (*Callback)(Address, Address); // FLTK's required function type for all callbacks
 
 	//------------------------------------------------------------------------------
 
+	/* 将一个地址作为一个W的引用来处理 */
 	template <class W>
 	W& reference_to(Address pw)
 	// treat an address as a reference to a W
@@ -52,6 +54,7 @@ namespace Graph_lib
 
 		virtual void hide() { pw->hide(); }
 		virtual void show() { pw->show(); }
+		/* 每个Widget至少为窗口定义了一种动作 */
 		virtual void attach(SWindow&) = 0;
 
 		Point loc;
